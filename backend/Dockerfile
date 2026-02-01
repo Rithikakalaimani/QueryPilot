@@ -1,10 +1,13 @@
-# QueryPilot backend - minimal image for Railway (no torch/ragas).
-# Set EMBEDDING_PROVIDER=openai and OPENAI_API_KEY.
+# QueryPilot backend for Railway. HuggingFace or OpenAI embeddings; no ragas.
+# EMBEDDING_PROVIDER=huggingface (default) or openai.
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install deps first (better layer cache)
+# CPU-only PyTorch first so sentence-transformers doesn't pull CUDA (smaller image)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+# App deps (includes sentence-transformers for HuggingFace embeddings)
 COPY requirements-railway.txt .
 RUN pip install --no-cache-dir -r requirements-railway.txt
 
