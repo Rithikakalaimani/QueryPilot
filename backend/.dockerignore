@@ -1,0 +1,15 @@
+# Don't copy into image
+.venv
+venv
+__pycache__
+*.pyc
+.env
+.git
+.gitignore
+*.md
+.pytest_cache
+.coverage
+htmlcov
+*.egg-info
+dist
+build
