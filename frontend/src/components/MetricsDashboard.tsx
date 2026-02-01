@@ -26,7 +26,7 @@ interface MetricsDashboardProps {
   error: string | null
 }
 
-function MetricCard({ label, value, pct }: { label: string; value: number; pct: number }) {
+function MetricCard({ label, pct }: { label: string; value: number; pct: number }) {
   return (
     <div
       style={{
