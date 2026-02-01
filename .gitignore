@@ -1,0 +1,22 @@
+# Backend / Python
+backend/.env
+backend/venv/
+backend/.venv/
+.venv/
+backend/data/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Markdown (optional: remove if you want README/DEPLOYMENT in repo)
+*.md
