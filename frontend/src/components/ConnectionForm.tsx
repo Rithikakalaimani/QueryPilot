@@ -109,7 +109,11 @@ export function ConnectionForm({
         <span style={{ color: 'var(--text-muted)' }}>{collapsed ? '▼' : '▲'}</span>
       </button>
       {!collapsed && (
-        <div style={{ padding: '0 16px 16px 16px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end' }}>
+        <div style={{ padding: '0 16px 16px 16px' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '10px', maxWidth: '520px' }}>
+            If the backend is deployed (e.g. Railway), use a database <strong>reachable from the internet</strong>. &quot;localhost&quot; refers to the server, not your computer—use a cloud MySQL host or a tunnel to your local DB.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             Host
             <input
@@ -240,6 +244,7 @@ export function ConnectionForm({
               {saveFeedback.startsWith('Failed') ? saveFeedback : '✓'}
             </span>
           )}
+          </div>
         </div>
       )}
     </section>
