@@ -243,12 +243,17 @@ def chat(req: ChatRequest):
 
 @app.post("/api/evaluate", response_model=EvaluationResponse)
 def run_evaluation():
-    """Run RAGAS benchmark and return metrics."""
+    """Run RAGAS benchmark and return metrics (requires ragas/datasets; not in requirements-railway.txt)."""
     try:
         from evaluation.benchmark import BenchmarkRunner
         runner = BenchmarkRunner()
         out = runner.run()
         return EvaluationResponse(**out)
+    except ImportError as e:
+        raise HTTPException(
+            status_code=503,
+            detail="RAGAS evaluation is not available in this deployment. Install full requirements.txt (ragas, datasets) for /evaluate, or use requirements-railway.txt with OpenAI embeddings only.",
+        ) from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -1,9 +1,10 @@
 # Railway config for QueryPilot backend.
 # In Railway: Service → Settings → set Root Directory to "backend".
-# Install CPU-only PyTorch first so we don't pull CUDA packages (avoids huge image + timeout).
+# Uses requirements-railway.txt (no torch/sentence-transformers/ragas) to avoid build timeout.
+# Set EMBEDDING_PROVIDER=openai and OPENAI_API_KEY. RAGAS /evaluate returns 503 on Railway.
 
 [build]
-buildCommand = "pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && pip install --no-cache-dir -r requirements.txt"
+buildCommand = "pip install --no-cache-dir -r requirements-railway.txt"
 
 [deploy]
 startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
