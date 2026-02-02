@@ -36,16 +36,23 @@ class ResultFormatter:
     def _generate_summary(self, query: str, sql: str, columns: list[str], sample: list) -> str:
         try:
             sample_str = str(sample[:10])
-            return chat_completion(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"User asked: {query}\nSQL: {sql}\nColumns: {columns}\nSample rows (first 10): {sample_str}\nWrite one short sentence summarizing what the result shows.",
-                    }
-                ],
-                model=self.settings.llm_model,
-                temperature=0.3,
-                max_tokens=150,
+            prompt = (
+                f"User asked: {query}\nSQL: {sql}\nColumns: {columns}\n"
+                f"Sample rows (first 10 only): {sample_str}\n\n"
+                "Reply with ONLY one short sentence. Do NOT list rows or repeat data. "
+                "Example: 'Returned 4 customers.' or 'Query returned 4 rows.'"
             )
+            raw = chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                model=self.settings.llm_model,
+                temperature=0.2,
+                max_tokens=80,
+            )
+            # Take only the first sentence so we never show hallucinated lists
+            summary = (raw or "").strip()
+            first_sentence = summary.split(".")[0].strip()
+            if first_sentence:
+                return first_sentence + "." if not first_sentence.endswith(".") else first_sentence
+            return f"Returned {len(sample)} row(s)."
         except Exception:
             return f"Returned {len(sample)} row(s)."

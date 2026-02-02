@@ -168,6 +168,7 @@ export function ConnectionForm({
             Password
             <input
               type="password"
+              autoComplete="off"
               value={connection.password}
               onChange={(e) => onChange({ ...connection, password: e.target.value })}
               placeholder=""
