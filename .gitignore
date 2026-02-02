@@ -18,5 +18,5 @@ frontend/dist/
 *.swp
 .DS_Store
 
-# Markdown (optional: remove if you want README/DEPLOYMENT in repo)
-*.md
+# Markdown (optional: ignore other .md; keep README and docs in repo)
+# *.md
