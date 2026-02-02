@@ -12,7 +12,7 @@ from sql_generation.pipeline import SQLGenerationPipeline
 from execution.runner import QueryRunner
 from execution.formatter import ResultFormatter
 from config import get_settings
-from connection import connection_from_request, ConnectionConfig
+from connection import connection_from_request, get_connection, ConnectionConfig
 from cache import sync_job_set, sync_job_get, chat_cache_get, chat_cache_set, schema_tables_set, schema_tables_get
 
 app = FastAPI(title="QueryPilot", version="1.0.0")
@@ -95,14 +95,14 @@ def health():
 def _run_sync_job(job_id: str, connection_config: ConnectionConfig | None) -> None:
     """Background task: run schema sync and store result in Redis or in-memory."""
     try:
+        resolved = get_connection(connection_config)
         pipeline = SchemaIngestionPipeline(connection_config=connection_config)
         stats = pipeline.run()
         sync_job_set(job_id, "done", result=stats, error=None)
-        if connection_config:
-            from schema_ingestion.extractor import SchemaExtractor
-            ext = SchemaExtractor(connection_config=connection_config)
-            schema = ext.extract()
-            schema_tables_set(connection_config.connection_key(), [t.name for t in schema.tables])
+        from schema_ingestion.extractor import SchemaExtractor
+        ext = SchemaExtractor(connection_config=resolved)
+        schema = ext.extract()
+        schema_tables_set(resolved.connection_key(), [t.name for t in schema.tables])
     except Exception as e:
         sync_job_set(job_id, "failed", result=None, error=str(e))
 
@@ -114,6 +114,7 @@ def sync_schema(req: SyncSchemaRequest = SyncSchemaRequest(), background_tasks: 
     if conn_dict:
         conn_dict = {k: v for k, v in conn_dict.items() if v is not None}
     connection_config = connection_from_request(conn_dict)
+    resolved_config = get_connection(connection_config)
     if req and req.async_mode:
         job_id = str(uuid.uuid4())[:8]
         sync_job_set(job_id, "running", result=None, error=None)
@@ -123,9 +124,9 @@ def sync_schema(req: SyncSchemaRequest = SyncSchemaRequest(), background_tasks: 
         pipeline = SchemaIngestionPipeline(connection_config=connection_config)
         stats = pipeline.run()
         from schema_ingestion.extractor import SchemaExtractor
-        ext = SchemaExtractor(connection_config=connection_config)
+        ext = SchemaExtractor(connection_config=resolved_config)
         schema = ext.extract()
-        schema_tables_set(connection_config.connection_key(), [t.name for t in schema.tables])
+        schema_tables_set(resolved_config.connection_key(), [t.name for t in schema.tables])
         return SyncSchemaResponse(**stats)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -152,13 +153,14 @@ def chat(req: ChatRequest):
     if req.connection:
         conn_dict = {k: v for k, v in req.connection.model_dump().items() if v is not None}
     connection_config = connection_from_request(conn_dict)
-    ckey = connection_config.connection_key()
+    resolved_config = get_connection(connection_config)
+    ckey = resolved_config.connection_key()
     msg_hash = hashlib.sha256(req.message.strip().encode()).hexdigest()[:16]
     cached = chat_cache_get(ckey, msg_hash)
     if cached:
         return ChatResponse(**cached)
     try:
-        gen = SQLGenerationPipeline(connection_config=connection_config)
+        gen = SQLGenerationPipeline(connection_config=resolved_config)
         out = gen.run(req.message)
         if not out["valid"]:
             return ChatResponse(
