@@ -17,25 +17,23 @@ Text-to-SQL RAG chatbot: ask questions in natural language and get SQL + results
 - **SQL preview & validation** — Generated SQL is shown; syntax, read-only, and row limits are enforced.
 - **Result table + summary** — Results in a table with a short LLM summary (one sentence).
 - **Database connection** — Use the form to point at your own DB (host, port, user, password, database). When the backend is on Railway, use a host reachable from the internet (e.g. Railway MySQL, cloud DB).
-- **RAGAS evaluation** — Available when running the full backend locally (`requirements.txt`); on Railway the minimal build returns 503 for `/evaluate`.
+- **RAGAS evaluation** — Available when running the full backend locally (`requirements.txt`); on Railway the minimal build.
 
 ### Screenshots
 
-| Feature | Screenshot |
-|--------|------------|
-| QueryPilot interface — Header, chat, database connection. | ![QueryPilot interface](screenshots/Screenshot%202026-02-02%20at%209.48.38%20AM.png) |
-| Database connection — Host, port, user, password, database (MySQL/Postgres). | ![Database connection](screenshots/Screenshot%202026-02-02%20at%209.48.50%20AM.png) |
-| Chat and SQL preview — Natural language question and generated SQL. | ![Chat and SQL preview](screenshots/Screenshot%202026-02-02%20at%2010.01.17%20AM.png) |
-| Result table — Query results with row count. | ![Result table](screenshots/Screenshot%202026-02-02%20at%2010.02.27%20AM.png) |
-| RAGAS metrics — Evaluation dashboard (when running full backend locally). | ![RAGAS metrics](screenshots/Screenshot%202026-02-02%20at%2010.03.00%20AM.png) |
+ ![QueryPilot interface](https://github.com/Rithikakalaimani/QueryPilot/blob/main/screenshots/Screenshot%202026-02-02%20at%2010.01.17%E2%80%AFAM.png) 
+![Database connection](https://github.com/Rithikakalaimani/QueryPilot/blob/main/screenshots/Screenshot%202026-02-02%20at%2010.02.27%E2%80%AFAM.png) 
+![Chat and SQL preview](https://github.com/Rithikakalaimani/QueryPilot/blob/main/screenshots/Screenshot%202026-02-02%20at%2010.03.00%E2%80%AFAM.png) 
+![Result table](https://github.com/Rithikakalaimani/QueryPilot/blob/main/screenshots/Screenshot%202026-02-02%20at%209.48.38%E2%80%AFAM.png) 
+![RAGAS metrics](https://github.com/Rithikakalaimani/QueryPilot/blob/main/screenshots/Screenshot%202026-02-02%20at%209.48.50%E2%80%AFAM.png) 
 
 ---
 
 ## Tech stack (current)
 
-- **Backend:** Python, FastAPI, MySQL/Postgres (SQLAlchemy, PyMySQL, `cryptography`), HuggingFace embeddings (sentence-transformers), Groq LLM, FAISS (in-memory). Deployed on Railway via Dockerfile; uses `requirements-railway.txt` (HuggingFace + Groq; no RAGAS in image).
-- **Frontend:** React (Vite), TypeScript — chat, SQL preview, result table, connection form, metrics dashboard. Deployed on Netlify; `VITE_API_URL` points to Railway backend.
-- **DB:** Railway MySQL; backend references `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`.
+- **Backend:** Python, FastAPI, MySQL(SQLAlchemy, PyMySQL, `cryptography`), HuggingFace embeddings, Groq LLM, FAISS (in-memory). Deployed on Railway via Dockerfile.
+- **Frontend:** React
+- **DB:** Railway MySQL
 
 ---
 
@@ -66,18 +64,3 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Click **Sync schema**, then ask questions.
 
----
-
-## Deployment (what’s live)
-
-- **Railway (backend):** Root directory `backend`, builder Dockerfile. Uses `requirements-railway.txt`; CPU-only PyTorch in Dockerfile for sentence-transformers. Env: `MYSQL_*` (reference Railway MySQL), `EMBEDDING_PROVIDER=huggingface`, `EMBEDDING_MODEL=all-MiniLM-L6-v2`, `LLM_PROVIDER=groq`, `GROQ_API_KEY`, optional `REDIS_*`. Port/target port 8080 (or leave blank). Start command in `railway.toml` runs via shell so `$PORT` is set.
-- **Netlify (frontend):** Base directory `frontend`, build `npm run build`, publish `frontend/dist`. Env: `VITE_API_URL=https://querypilot.up.railway.app` (or your Railway backend URL).
-- **Railway MySQL:** Same project; backend references its `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`. Sync schema uses that by default when the connection form is not filled.
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) and [DEPLOY_STEP_BY_STEP.md](DEPLOY_STEP_BY_STEP.md) for step-by-step.
-
----
-
-## Safety
-
-- Read-only by default (`READ_ONLY=true`); row limit enforced (`MAX_ROWS_LIMIT`); SQL validated (syntax, read-only, table existence) before execution.
