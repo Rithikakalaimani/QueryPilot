@@ -9,6 +9,7 @@ SQL_RULES = """
 - Use table aliases for clarity (e.g. c for customers, o for orders).
 - Always add a reasonable LIMIT (e.g. LIMIT 100) unless the question asks for all/count.
 - Use valid table and column names only from the schema context.
+- For "unique", "distinct", or "without duplicates" on a column: use SELECT DISTINCT TRIM(column) AS column (or LOWER(TRIM(column)) if case should not matter) so values that differ only by whitespace/case collapse to one row.
 - Output only the SQL statement, no markdown or explanation.
 """
 
