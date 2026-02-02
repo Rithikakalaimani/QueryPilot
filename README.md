@@ -31,7 +31,7 @@ Text-to-SQL RAG chatbot: ask questions in natural language and get SQL + results
 
 ## Tech stack (current)
 
-- **Backend:** Python, FastAPI, MySQL(SQLAlchemy, PyMySQL, `cryptography`), HuggingFace embeddings, Groq LLM, FAISS (in-memory). Deployed on Railway via Dockerfile.
+- **Backend:** Python, FastAPI, MySQL(SQLAlchemy, PyMySQL), HuggingFace embeddings, Groq LLM, FAISS (in-memory). Deployed on Railway via Dockerfile.
 - **Frontend:** React
 - **DB:** Railway MySQL
 
